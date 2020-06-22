@@ -6,6 +6,12 @@ The easiest way to get started using these examples is to used the [Azure Cloud 
 
 [![Launch Cloud Shell](https://shell.azure.com/images/launchcloudshell.png "Launch Cloud Shell")](https://shell.azure.com/powershell)
 
+The easiest way to get the script is to clone this GIT repository inside of the Azure Cloud Shell. ASC has all of the software required to pull a GIT repository installed by default. 
+
+```bash
+git clone https://github.com/hibbertda/az-demo-env.git
+```
+
 **Note:** These are based on a series of basic scripts and procedures I have used to setup demo environments. 
 
 ### Azure AD Identities
