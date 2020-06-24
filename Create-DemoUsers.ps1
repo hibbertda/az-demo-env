@@ -4,6 +4,28 @@ param (
     [parameter(position=2, mandatory=$false)][switch]$createGroup = $false,     # Create a group and add all users
     [parameter(position=3, mandatory=$false)][switch]$createSP = $false         # Create service principal
 )
+Function New-RandomPassword{
+    Param(
+        [ValidateRange(8, 32)]
+        [int] $Length = 16
+    )   
+    $AsciiCharsList = @()   
+    foreach ($a in (33..126)){
+        $AsciiCharsList += , [char][byte]$a 
+    }
+    #RegEx for checking general AD Complex passwords
+    $RegEx = "(?=^.{8,32}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*"
+ 
+    do {
+        $Password = ""
+        $loops = 1..$Length
+        Foreach ($loop in $loops) {
+            $Password += $AsciiCharsList | Get-Random
+        }
+    }
+    until ($Password -match $RegEx )   
+    return $Password   
+}
 
 Clear-Host
 # Test for active connection to AzureAD
@@ -38,7 +60,8 @@ if ($createSP){
     Write-host -ForegroundColor Green "The SP password will be valid for 15 days."
 
     # Create SP password - Good for 15 days
-    $spPass = [System.Web.Security.Membership]::GeneratePassword(10,2)
+    #$spPass = [System.Web.Security.Membership]::GeneratePassword(10,2)
+    $spPass = New-RandomPassword(10)
 
     $spCred = New-Object Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential -Property @{`
         StartDate=get-date; `
@@ -89,7 +112,8 @@ else {
 # Create Accounts
 do {
     # Generate Password
-    $pass = [System.Web.Security.Membership]::GeneratePassword(10,2)
+    # $pass = [System.Web.Security.Membership]::GeneratePassword(10,2)
+    $pass = New-RandomPassword(10)
     $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
     $PasswordProfile.Password = $pass
 
