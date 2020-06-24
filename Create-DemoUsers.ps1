@@ -2,7 +2,8 @@ param (
     [parameter(position=0, mandatory=$true)][string]$userPrefix,                # Prefix for user accounts to build usernames
     [parameter(position=1, mandatory=$true)][int]$userCount,                    # Count of users to create
     [parameter(position=2, mandatory=$false)][switch]$createGroup = $false,     # Create a group and add all users
-    [parameter(position=3, mandatory=$false)][switch]$createSP = $false         # Create service principal
+    [parameter(position=3, mandatory=$false)][switch]$createSP = $false,        # Create service principal
+    [parameter(position=4, mandatory=$false)][int]$SPExperationDays = 15        # Number of days the SP will be valid
 )
 Function New-RandomPassword{
     Param(
@@ -57,7 +58,7 @@ if ($createSP){
     $spName = "sp-"+$userPrefix
 
     Write-host -ForegroundColor Green "Creating Service Principal"
-    Write-host -ForegroundColor Green "The SP password will be valid for 15 days."
+    Write-host -ForegroundColor Green "The SP password will be valid for $($SPExperationDays) days."
 
     # Create SP password - Good for 15 days
     #$spPass = [System.Web.Security.Membership]::GeneratePassword(10,2)
@@ -65,7 +66,7 @@ if ($createSP){
 
     $spCred = New-Object Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential -Property @{`
         StartDate=get-date; `
-        EndDate=$(Get-date).addDays(15);`
+        EndDate=$(Get-date).addDays($SPExperationDays);`
         Password=$spPass`
     }
 
