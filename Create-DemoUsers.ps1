@@ -3,7 +3,7 @@ param (
     [parameter(position=1, mandatory=$true)][int]$userCount,                    # Count of users to create
     [parameter(position=2, mandatory=$false)][switch]$createGroup = $false,     # Create a group and add all users
     [parameter(position=3, mandatory=$false)][switch]$createSP = $false,        # Create service principal
-    [parameter(position=4, mandatory=$false)][int]$SPExperationDays = 15        # Number of days the SP will be valid
+    [parameter(position=4, mandatory=$false)][int]$SPExperationDays = 60        # Number of days the SP will be valid
 )
 Function New-RandomPassword{
     Param(
