@@ -3,28 +3,20 @@ param (
     [parameter(position=1, mandatory=$true)][int]$userCount,                    # Count of users to create
     [parameter(position=2, mandatory=$false)][switch]$createGroup = $false,     # Create a group and add all users
     [parameter(position=3, mandatory=$false)][switch]$createSP = $false,        # Create service principal
-    [parameter(position=4, mandatory=$false)][int]$SPExperationDays = 60        # Number of days the SP will be valid
+    [parameter(position=4, mandatory=$false)][int]$SPExperationDays = 60,       # Number of days the SP will be valid
+    [parameter(position=4, mandatory=$false)][switch]$testing = $false          # Testing mode
 )
 Function New-RandomPassword{
     Param(
         [ValidateRange(8, 32)]
         [int] $Length = 16
     )   
-    $AsciiCharsList = @()   
-    foreach ($a in (33..126)){
-        $AsciiCharsList += , [char][byte]$a 
-    }
-    #RegEx for checking general AD Complex passwords
-    $RegEx = "(?=^.{8,32}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*"
- 
-    do {
-        $Password = ""
-        $loops = 1..$Length
-        Foreach ($loop in $loops) {
-            $Password += $AsciiCharsList | Get-Random
-        }
-    }
-    until ($Password -match $RegEx )   
+    $password = (-join(65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90|%{[char]$_}|Get-Random -Count 2)) `
+                + (-join(97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122|%{[char]$_}|Get-Random -Count 2)) `
+                + (-join(65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90|%{[char]$_}|Get-Random -Count 2)) `
+                + (-join(97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122|%{[char]$_}|Get-Random -Count 2)) `
+                + (-join(64,33,35,36|%{[char]$_}|Get-Random -Count 1))  `
+                + (-join(49,50,51,52,53,54,55,56,57|%{[char]$_}|Get-Random -Count 3)) 
     return $Password   
 }
 
@@ -43,7 +35,7 @@ catch {
 
 # If create group true create a new AAD Group
 if ($createGroup){
-    
+    Write-host -ForegroundColor Green "Creating AAD Group"
     $groupConfig = New-AzureADGroup -Description "$($userPrefix) - Demo Group" `
         -DisplayName "$($userPrefix)-group" `
         -MailEnabled $false `
